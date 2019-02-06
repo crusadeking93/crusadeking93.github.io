@@ -1,31 +1,69 @@
-<!DOCTYPE html>
-<html>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
-</body>
-  
-  ---
-feature_name: Web Bluetooth / Device Info
-chrome_version: 45
-check_min_version: true
-feature_id: 5264933985976320
-icon_url: icon.png
-index: index.html
----
+<!doctype html>
+<!--
+Copyright 2019 Google Inc. All Rights Reserved.
 
-{% include_relative _includes/intro.html %}
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-<p>This sample illustrates the use of the Web Bluetooth API to retrieve basic
-device information from a nearby Bluetooth Low Energy Device. You may want to
-check out the <a href="device-info-async-await.html">Device Info (Async
-Await)</a> sample.</p>
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Sample illustrating the use of Web Bluetooth / Device Info (Async Await).">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>Web Bluetooth / Device Info (Async Await) Sample</title>
+    <script>
+      // Add a global error event listener early on in the page load, to help ensure that browsers
+      // which don't support specific functionality still end up displaying a meaningful message.
+      window.addEventListener('error', function(error) {
+        if (ChromeSamples && ChromeSamples.setStatus) {
+          console.error(error);
+          ChromeSamples.setStatus(error.message + ' (Your browser may not support this feature.)');
+          error.preventDefault();
+        }
+      });
+    </script>
+    
+    
+    
+    
+    <link rel="icon" href="icon.png">
+    
+    <link rel="stylesheet" href="../styles/main.css">
+    
+    
+  </head>
+
+  <body>
+    <img class="pageIcon" src="icon.png">
+    <h1>Web Bluetooth / Device Info (Async Await) Sample</h1>
+    <p class="availability">
+      Available in <a target="_blank" href="https://www.chromestatus.com/feature/5264933985976320">Chrome 55+</a> |
+      <a target="_blank" href="https://github.com/googlechrome/samples/blob/gh-pages/web-bluetooth/device-info-async-await.html">View on GitHub</a> |
+      <a  href="index.html">Browse Samples</a>
+    </p>
+    <p>The <a href="https://developers.google.com/web/updates/2015/07/interact-with-ble-devices-on-the-web">Web Bluetooth
+  API</a> lets websites discover and communicate with devices over the
+Bluetooth 4 wireless standard using the Generic Attribute Profile (GATT). It is
+currently partially implemented in Android M, Chrome OS, Linux, and Mac.</p>
+
 <script>
   if('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js');
   }
 </script>
-  <script>
+
+<script>
   window.addEventListener('DOMContentLoaded', function() {
     const searchParams = new URL(location).searchParams;
     const inputs = Array.from(document.querySelectorAll('input[id]'));
@@ -65,7 +103,12 @@ Await)</a> sample.</p>
     });
   });
 </script>
-  
+
+
+<p>This sample illustrates the use of the Web Bluetooth API to retrieve basic
+device information from a nearby Bluetooth Low Energy Device. You may want to
+check out the <a href="device-info.html">Device Info (Promises)</a> sample.</p>
+
 <form>
   <label for="allDevices">All Devices</label>
   <input id="allDevices" type="checkbox">
@@ -74,6 +117,7 @@ Await)</a> sample.</p>
   <input id="namePrefix" type="text" size=17 placeholder="Device Name Prefix">
   <button>Get Bluetooth Device Info</button>
 </form>
+
 <datalist id="services">
   <option value="alert_notification">alert_notification</option>
   <option value="automation_io">automation_io</option>
@@ -108,7 +152,9 @@ Await)</a> sample.</p>
   <option value="user_data">user_data</option>
   <option value="weight_scale">weight_scale</option>
 </datalist>
-  <script>
+
+
+<script>
   var ChromeSamples = {
     log: function() {
       var line = Array.prototype.slice.call(arguments).map(function(argument) {
@@ -135,25 +181,31 @@ Await)</a> sample.</p>
     }
   };
 </script>
-  <h3>Live Output</h3>
-  <div id="output" class="output">
+
+<h3>Live Output</h3>
+<div id="output" class="output">
   <div id="content"></div>
   <div id="status"></div>
-  <pre id="log">Requesting Bluetooth Device...
-with {"acceptAllDevices":true}
-Argh! NotFoundError: User cancelled the requestDevice() chooser.
-</pre>
+  <pre id="log"></pre>
 </div>
-  <script>
+
+
+<script>
   if (/Chrome\/(\d+\.\d+.\d+.\d+)/.test(navigator.userAgent)){
     // Let's log a warning if the sample is not supposed to execute on this
     // version of Chrome.
-    if (45 > parseInt(RegExp.$1)) {
-      ChromeSamples.setStatus('Warning! Keep in mind this sample has been tested with Chrome ' + 45 + '.');
+    if (55 > parseInt(RegExp.$1)) {
+      ChromeSamples.setStatus('Warning! Keep in mind this sample has been tested with Chrome ' + 55 + '.');
     }
   }
 </script>
-  <script>function onButtonClick() {
+
+
+
+
+  
+    
+      <script>async function onButtonClick() {
   let filters = [];
 
   let filterService = document.querySelector('#service').value;
@@ -181,26 +233,70 @@ Argh! NotFoundError: User cancelled the requestDevice() chooser.
     options.filters = filters;
   }
 
-  log('Requesting Bluetooth Device...');
-  log('with ' + JSON.stringify(options));
-  navigator.bluetooth.requestDevice(options)
-  .then(device => {
+  try {
+    log('Requesting Bluetooth Device...');
+    log('with ' + JSON.stringify(options));
+    const device = await navigator.bluetooth.requestDevice(options);
+
     log('> Name:             ' + device.name);
     log('> Id:               ' + device.id);
     log('> Connected:        ' + device.gatt.connected);
-  })
-  .catch(error => {
+  } catch(error)  {
     log('Argh! ' + error);
-  });
+  }
 }
 </script>
-  <h3>JavaScript Snippet</h3>
+    
   
-{% include_relative _includes/datalist-services.html %}
 
-{% include output_helper.html %}
+  
+    <h3>JavaScript Snippet</h3>
+  
 
-{% include js_snippet.html filename='device-info.js' %}
+  
+    <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="k">async</span> <span class="kd">function</span> <span class="nx">onButtonClick</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">filters</span> <span class="o">=</span> <span class="p">[];</span>
+
+  <span class="kd">let</span> <span class="nx">filterService</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">'#service'</span><span class="p">).</span><span class="nx">value</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">filterService</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">'0x'</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">filterService</span> <span class="o">=</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nx">filterService</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">filterService</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">filters</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="na">services</span><span class="p">:</span> <span class="p">[</span><span class="nx">filterService</span><span class="p">]});</span>
+  <span class="p">}</span>
+
+  <span class="kd">let</span> <span class="nx">filterName</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">'#name'</span><span class="p">).</span><span class="nx">value</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">filterName</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">filters</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="na">name</span><span class="p">:</span> <span class="nx">filterName</span><span class="p">});</span>
+  <span class="p">}</span>
+
+  <span class="kd">let</span> <span class="nx">filterNamePrefix</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">'#namePrefix'</span><span class="p">).</span><span class="nx">value</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">filterNamePrefix</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">filters</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="na">namePrefix</span><span class="p">:</span> <span class="nx">filterNamePrefix</span><span class="p">});</span>
+  <span class="p">}</span>
+
+  <span class="kd">let</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{};</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">'#allDevices'</span><span class="p">).</span><span class="nx">checked</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">options</span><span class="p">.</span><span class="nx">acceptAllDevices</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">options</span><span class="p">.</span><span class="nx">filters</span> <span class="o">=</span> <span class="nx">filters</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">try</span> <span class="p">{</span>
+    <span class="nx">log</span><span class="p">(</span><span class="s1">'Requesting Bluetooth Device...'</span><span class="p">);</span>
+    <span class="nx">log</span><span class="p">(</span><span class="s1">'with '</span> <span class="o">+</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">options</span><span class="p">));</span>
+    <span class="kd">const</span> <span class="nx">device</span> <span class="o">=</span> <span class="kr">await</span> <span class="nb">navigator</span><span class="p">.</span><span class="nx">bluetooth</span><span class="p">.</span><span class="nx">requestDevice</span><span class="p">(</span><span class="nx">options</span><span class="p">);</span>
+
+    <span class="nx">log</span><span class="p">(</span><span class="s1">'&gt; Name:             '</span> <span class="o">+</span> <span class="nx">device</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
+    <span class="nx">log</span><span class="p">(</span><span class="s1">'&gt; Id:               '</span> <span class="o">+</span> <span class="nx">device</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+    <span class="nx">log</span><span class="p">(</span><span class="s1">'&gt; Connected:        '</span> <span class="o">+</span> <span class="nx">device</span><span class="p">.</span><span class="nx">gatt</span><span class="p">.</span><span class="nx">connected</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span>  <span class="p">{</span>
+    <span class="nx">log</span><span class="p">(</span><span class="s1">'Argh! '</span> <span class="o">+</span> <span class="nx">error</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+  
+
+
 
 <script>
   document.querySelector('form').addEventListener('submit', function(event) {
@@ -213,7 +309,8 @@ Argh! NotFoundError: User cancelled the requestDevice() chooser.
     }
   });
 </script>
-  <script>
+
+<script>
   log = ChromeSamples.log;
 
   function isWebBluetoothEnabled() {
@@ -226,7 +323,10 @@ Argh! NotFoundError: User cancelled the requestDevice() chooser.
     }
   }
 </script>
-  <script>
+
+
+    
+    <script>
       /* jshint ignore:start */
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
           (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -236,7 +336,5 @@ Argh! NotFoundError: User cancelled the requestDevice() chooser.
       ga('send', 'pageview');
       /* jshint ignore:end */
     </script>
-  <script src="chrome-extension://khbkdfddenodbcodjcnfpgogceaegjpa/lib/typingdna.js"></script>
-<script src="chrome-extension://khbkdfddenodbcodjcnfpgogceaegjpa/monitor/typing/content.js"></script>
-{% include_relative _includes/utils.html %}
+  </body>
 </html>
